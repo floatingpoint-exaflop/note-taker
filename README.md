@@ -11,7 +11,7 @@
   - [Questions](#questions)
 
   ## Description
-  The Note Taker is an Express.js web app, which can be run from localhost or from a [deployed site on Render](), to write, save, view, and delete notes. The data is persistent across user sessions via a backend .json file and makes extensive use of express fs and path libraries to help the frontend code work with the data.
+  The Note Taker is an Express.js web app, which can be run from localhost or from a [deployed site on Render](https://note-taker-n2wc.onrender.com/), to write, save, view, and delete notes. The data is persistent across user sessions via a backend .json file and makes extensive use of express fs and path libraries to help the frontend code work with the data.
 
   ## Installation
   - This project requires project-level installs of Node and Express, both of which can be retrieved via npm i -y.
@@ -19,7 +19,7 @@
 
   ## Usage
   - To use this project locally, ensure you have the node packages installed as specified in the Installation section above. Then open a terminal on the project root and simply run nodemon server.js or node server.js - from there, just use the site and watch the magic unfold!
-  - To use the project on Render, [simply navigate to the deployed site](); see my contact info in the Questions section if there are any issues with the program!
+  - To use the project on Render, [simply navigate to the deployed site](https://note-taker-n2wc.onrender.com/); see my contact info in the Questions section if there are any issues with the program!
 
   ![Image](./deployed-screenshot.png)
 
