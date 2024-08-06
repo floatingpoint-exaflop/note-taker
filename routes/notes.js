@@ -4,7 +4,7 @@ const uuid = require('../helpers/uuid');
 const router = express.Router();
 
 //GET
-app.get('/api/notes', (req, res) => {
+router.get('/', (req, res) => {
   fs.readFile("./db/db.json", "utf-8", (err, data) => {
     if (err) {
       return res.status(500).json({ error: 'Failed to read notes data.' });
@@ -14,7 +14,7 @@ app.get('/api/notes', (req, res) => {
 });
 
 //POST NEW ITEM
-app.post('/api/notes', (req, res) => {
+router.post('/', (req, res) => {
   const { title, text } = req.body;
   if (title && text) {
     const newNote = {
@@ -46,7 +46,7 @@ app.post('/api/notes', (req, res) => {
 });
 
 //DELETE ITEM (Trashcan button)
-app.delete('/api/notes/:id', (req, res) => {
+router.delete('/:id', (req, res) => {
   const { id } = req.params;
 
     // Read list of notes and replace it with new version that contains one less (the deleted) note
