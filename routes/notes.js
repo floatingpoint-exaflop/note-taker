@@ -1,65 +1,75 @@
-const notes = require('express').Router();
-const { v4: uuidv4 } = require('uuid');
-const {
-  readFromFile,
-  readAndAppend,
-  writeToFile,
-} = require('../helpers/fsUtils');
+const express = require('express');
+const fs = require('fs');
+const uuid = require('../helpers/uuid');
+const router = express.Router();
 
-// GET Route for retrieving all the tips
-tips.get('/', (req, res) => {
-  readFromFile('./db/tips.json').then((data) => res.json(JSON.parse(data)));
+//GET
+app.get('/api/notes', (req, res) => {
+  fs.readFile("./db/db.json", "utf-8", (err, data) => {
+    if (err) {
+      return res.status(500).json({ error: 'Failed to read notes data.' });
+    }
+    res.status(200).json(JSON.parse(data))
+  })
 });
 
-// GET Route for a specific tip
-tips.get('/:tip_id', (req, res) => {
-  const tipId = req.params.tip_id;
-  readFromFile('./db/tips.json')
-    .then((data) => JSON.parse(data))
-    .then((json) => {
-      const result = json.filter((tip) => tip.tip_id === tipId);
-      return result.length > 0
-        ? res.json(result)
-        : res.json('No tip with that ID');
-    });
-});
-
-// DELETE Route for a specific tip
-tips.delete('/:tip_id', (req, res) => {
-  const tipId = req.params.tip_id;
-  readFromFile('./db/tips.json')
-    .then((data) => JSON.parse(data))
-    .then((json) => {
-      // Make a new array of all tips except the one with the ID provided in the URL
-      const result = json.filter((tip) => tip.tip_id !== tipId);
-
-      // Save that array to the filesystem
-      writeToFile('./db/tips.json', result);
-
-      // Respond to the DELETE request
-      res.json(`Item ${tipId} has been deleted 🗑️`);
-    });
-});
-
-// POST Route for a new UX/UI tip
-tips.post('/', (req, res) => {
-  console.log(req.body);
-
-  const { username, topic, tip } = req.body;
-
-  if (req.body) {
-    const newTip = {
-      username,
-      tip,
-      topic,
-      tip_id: uuidv4(),
+//POST NEW ITEM
+app.post('/api/notes', (req, res) => {
+  const { title, text } = req.body;
+  if (title && text) {
+    const newNote = {
+      title,
+      text,
+      id: uuid()
     };
+    const noteItem = { title: newNote.title, text: newNote.text, id: newNote.id };
 
-    readAndAppend(newTip, './db/tips.json');
-    res.json(`Tip added successfully`);
+    // Read list of notes and replace it with new version that contains new note
+    fs.readFile("./db/db.json", "utf-8", (err, data) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to read notes data.' });
+      }
+      
+      let existingNotes = data ? JSON.parse(data) : [];
+      existingNotes.push(noteItem);
+
+    fs.writeFile("./db/db.json", JSON.stringify(existingNotes), (err) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to write notes data' });
+      }
+      res.status(201).json({ message: 'Note added successfully!', note: noteItem });
+      });
+    });
   } else {
-    res.error('Error in adding tip');
+    res.status(400).json({ error: 'Title and text are required' });
   }
 });
 
-module.exports = notes;
+//DELETE ITEM (Trashcan button)
+app.delete('/api/notes/:id', (req, res) => {
+  const { id } = req.params;
+
+    // Read list of notes and replace it with new version that contains one less (the deleted) note
+    fs.readFile("./db/db.json", "utf-8", (err, data) => {
+      if (err) {
+        return res.status(500).json({ error: 'Failed to read notes data.' });
+      }
+      
+      let existingNotes = data ? JSON.parse(data) : [];
+      const noteNumber = existingNotes.findIndex(note => note.id === id);
+      //we need to find the index to delete the undesired item.
+      if (noteNumber === -1) {
+        return res.status(404).json({ error: 'This note does not exist and could not be located.'})
+      }
+      existingNotes.splice(noteNumber, 1);
+
+      fs.writeFile("./db/db.json", JSON.stringify(existingNotes), (err) => {
+        if (err) {
+          return res.status(500).json({ error: 'Failed to write notes data.' });
+        }
+        res.status(200).json({ message: 'Note deleted successfully!' });
+      });
+  });
+});
+
+module.exports = router;

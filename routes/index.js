@@ -1,12 +1,14 @@
-const router = require('express').Router();
+const express = require('express');
+const path = require('path');
+const router = express.Router();
 
-// Import our modular routers for /tips and /feedback
-const tipsRouter = require('./tips');
-const feedbackRouter = require('./feedback');
-const diagnosticsRouter = require('./diagnostics');
+// HTML Routes
+router.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/index.html'));
+});
 
-router.use('/tips', tipsRouter);
-router.use('/feedback', feedbackRouter);
-router.use('/diagnostics', diagnosticsRouter);
+router.get('/notes', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/notes.html'));
+});
 
 module.exports = router;
